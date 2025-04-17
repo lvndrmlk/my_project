@@ -13,7 +13,7 @@ class Figure:
     def area(self):
         return 0.0
 
-gbcmrb gbcmrb
+
 class Void(Figure):
     """ "Hульугольник" """
     
