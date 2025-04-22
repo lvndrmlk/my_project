@@ -11,6 +11,7 @@ class R2Point:
         if y is None:
             y = float(input("y -> "))
         self.x, self.y = x, y
+        self.on_circle = True if x**2 + y**2 == 1 else False
 
     # Площадь треугольника
     @staticmethod
