@@ -66,7 +66,7 @@ class Segment(Figure):
                 y_val = float(sol[1])
             except(TypeError):
                 continue
-            c = Point(R2Point(x_val, y_val))
+            c = R2Point(x_val, y_val)
             if ((min(b.x, a.x) <= x_val <= max(b.x, a.x) and 
                 min(b.y, a.y) <= y_val <= max(b.y, a.y))) and \
                 a != c and b != c:
@@ -97,15 +97,14 @@ class Polygon(Figure):
     def __init__(self, a, b, c, int_cnt):     
         self.int_cnt = int_cnt                             
         self.points = Deq()
-        self.points.push_first(b)
-        self.to_front = True
-        if b.is_light(a, c):
-            self.points.push_first(a) # 0.5|1.1|-|-|-|-3.3
-            self.points.push_last(c)
-            self.to_front = False
+        self.points.push_first(c)
+        if c.is_light(a, b):
+            # self.points.push_first(a) 
+            self.points.push_last(b)
+            self.points.push_last(a)
         else:
             self.points.push_last(a)
-            self.points.push_first(c)
+            self.points.push_last(b)
         self._perimeter = a.dist(b) + b.dist(c) + c.dist(a)
         self._area = abs(R2Point.area(a, b, c))
 
@@ -129,37 +128,45 @@ class Polygon(Figure):
         if t.is_light(self.points.last(), self.points.first()):
             # учёт удаления ребра, соединяющего конец и начало дека
             self._perimeter -= self.points.first().dist(self.points.last())
+            #почему плюс 
             self._area += abs(R2Point.area(t,
                                            self.points.last(),
                                            self.points.first()))
             # add checker for segment (last first)
-            self.int_cnt -= Segment(self.points.first(), self.points.last())._find_intersections()
+            #2 раза удаляет ребро?
+            # self.int_cnt -= Segment(self.points.first(), self.points.last())._find_intersections()
             #берет не ту точку, скипает ребро 
             # удаление освещённых рёбер из начала дека
-            p = self.points.pop_first()    
+            p = self.points.pop_first() 
+            q = p 
+            r = p
+
+            processed1 = False
             while t.is_light(p, self.points.first()):
+                processed1 = True
                 self._perimeter -= p.dist(self.points.first())
                 self._area += abs(R2Point.area(t, p, self.points.first()))
-                # лажа, цикл не все освещенные ребра перебирает.
-                self.int_cnt -= Segment(p, self.points.first()).find_intersections()
-                p = self.points.pop_first() # internal point
-                self.int_cnt -= int(p.on_circle)
-            else:
-                self.int_cnt -= p.on_circle
+                self.int_cnt -= Segment(p, self.points.first())._find_intersections()
+                p = self.points.pop_first()
+                self.int_cnt -= int(p.on_circle) 
+            if processed1 == True:
+                 self.int_cnt += p.on_circle
             self.points.push_first(p)
-            self.int_cnt += p.on_circle
-
-            # удаление освещённых рёбер из конца дека   
-            p = self.points.pop_last()
-            while t.is_light(self.points.last(), p):
-                self._perimeter -= p.dist(self.points.last())
-                self._area += abs(R2Point.area(t, p, self.points.last()))
-                self.int_cnt -= Segment(p, self.points.last()).find_intersections()
-                p = self.points.pop_last()
-            else:
-                self.int_cnt -= p.on_circle
-            self.points.push_last(p) 
-            self.int_cnt += p.on_circle     
+           
+            processed2 = False
+            while t.is_light(self.points.last(), q):
+                processed2 = True
+                self._perimeter -= q.dist(self.points.last())
+                self._area += abs(R2Point.area(t, q, self.points.last()))
+                self.int_cnt -= Segment(q, self.points.last())._find_intersections()
+                q = self.points.pop_last()
+                self.int_cnt -= q.on_circle
+            if processed2 == True:
+                self.int_cnt += q.on_circle
+            self.points.push_last(q)
+            # self.int_cnt += q.on_circle   
+            if processed1 and processed2 == True:
+                self.int_cnt -= r.on_circle
 
             # добавление двух новых рёбер
             self._perimeter += t.dist(self.points.first()) + \
@@ -170,21 +177,27 @@ class Polygon(Figure):
     
 
     def find_intersections(self):
-        if self.to_front == True:
-            a = self.points.pop_first()
-            b = self.points.first()
-            self.points.push_first(a)
-            c = self.points.last()
-            self.int_cnt += Segment(a, c)._find_intersections() + \
-            Segment(b, c)._find_intersections() + int(c.on_circle)
-        else:
-            a = self.points.first()
-            c = self.points.last()
-            b = self.points.pop_last()
-            self.points.push_first(b)
-            self.int_cnt += Segment(a, c)._find_intersections() + \
-            Segment(b, c)._find_intersections() + int(c.on_circle)
-
+        # if self.to_front == True:
+        #     a = self.points.pop_first()
+        #     b = self.points.first()
+        #     self.points.push_first(a)
+        #     c = self.points.last()
+        #     self.int_cnt += Segment(a, c)._find_intersections() + \
+        #     Segment(b, c)._find_intersections() + int(c.on_circle)
+        # else:
+        #     a = self.points.first()
+        #     c = self.points.last()
+        #     b = self.points.pop_last()
+        #     self.points.push_first(b)
+        #     self.int_cnt += Segment(a, c)._find_intersections() + \
+        #     Segment(b, c)._find_intersections() + int(c.on_circle)
+        a = self.points.pop_first()
+        b = self.points.first()
+        self.points.push_first(a)
+        c = self.points.last()
+        self.int_cnt += Segment(a, c)._find_intersections() + \
+        Segment(a, b)._find_intersections() + int(a.on_circle)
+        
         return self.int_cnt
 
 
