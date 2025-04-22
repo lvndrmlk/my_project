@@ -26,6 +26,10 @@ class TestVoid:
     def test_area(self):
         assert self.f.area() == 0.0
 
+    # Мощность множества пересечений нулевая
+    def test_find_intersection(self):
+        assert self.f.find_intersections() == 0.0
+
     # При добавлении точки нульугольник превращается в одноугольник
     def test_add(self):
         assert isinstance(self.f.add(R2Point(0.0, 0.0)), Point)
@@ -36,6 +40,7 @@ class TestPoint:
     # Инициализация (выполняется для каждого из тестов класса)
     def setup_method(self):
         self.f = Point(R2Point(0.0, 0.0))
+        self.q = Point(R2Point(1.0, 0.0))
 
     # Одноугольник является фигурой
     def test_figure(self):
@@ -56,6 +61,11 @@ class TestPoint:
     # При добавлении точки одноугольник может не измениться
     def test_add1(self):
         assert self.f.add(R2Point(0.0, 0.0)) is self.f
+
+    # При добавлении точки мощность может измениться
+    def test_find_intersection(self):
+        assert self.q.find_intersections() == 1
+        assert self.а.find_intersections() == 0
 
     # При добавлении точки одноугольник может превратиться в двуугольник
     def test_add2(self):
