@@ -65,7 +65,7 @@ class TestPoint:
     # При добавлении точки мощность может измениться
     def test_find_intersection(self):
         assert self.q.find_intersections() == 1
-        assert self.а.find_intersections() == 0
+        assert self.f.find_intersections() == 0
 
     # При добавлении точки одноугольник может превратиться в двуугольник
     def test_add2(self):
@@ -125,7 +125,8 @@ class TestPolygon:
         self.a = R2Point(0.0, 0.0)
         self.b = R2Point(1.0, 0.0)
         self.c = R2Point(0.0, 1.0)
-        self.f = Polygon(self.a, self.b, self.c)
+        self.int_cnt = 2
+        self.f = Polygon(self.a, self.b, self.c, self.int_cnt)
 
     # Многоугольник является фигурой
     def test_figure(self):
@@ -137,7 +138,7 @@ class TestPolygon:
 
     # Изменение порядка точек при создании объекта всё равно порождает Polygon
     def test_polygon2(self):
-        self.f = Polygon(self.b, self.a, self.c)
+        self.f = Polygon(self.b, self.a, self.c, self.int_cnt)
         assert isinstance(self.f, Polygon)
 
     # Изменение количества вершин многоугольника

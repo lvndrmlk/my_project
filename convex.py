@@ -47,7 +47,7 @@ class Segment(Figure):
     def perimeter(self):
         return 2.0 * self.p.dist(self.q)
 
-    # returns intersections only for interval
+
     def _find_intersections(self):
         x, y = symbols('x y')
         circle_eq = Eq(x**2 + y**2, 1)
@@ -99,7 +99,6 @@ class Polygon(Figure):
         self.points = Deq()
         self.points.push_first(c)
         if c.is_light(a, b):
-            # self.points.push_first(a) 
             self.points.push_last(b)
             self.points.push_last(a)
         else:
@@ -126,21 +125,9 @@ class Polygon(Figure):
 
         # хотя бы одно освещённое ребро есть
         if t.is_light(self.points.last(), self.points.first()):
-            # учёт удаления ребра, соединяющего конец и начало дека
-            self._perimeter -= self.points.first().dist(self.points.last())
-            #почему плюс 
-            self._area += abs(R2Point.area(t,
-                                           self.points.last(),
-                                           self.points.first()))
-            # add checker for segment (last first)
-            #2 раза удаляет ребро?
-            # self.int_cnt -= Segment(self.points.first(), self.points.last())._find_intersections()
-            #берет не ту точку, скипает ребро 
-            # удаление освещённых рёбер из начала дека
             p = self.points.pop_first() 
             q = p 
             r = p
-
             processed1 = False
             while t.is_light(p, self.points.first()):
                 processed1 = True
@@ -163,34 +150,17 @@ class Polygon(Figure):
                 self.int_cnt -= q.on_circle
             if processed2 == True:
                 self.int_cnt += q.on_circle
-            self.points.push_last(q)
-            # self.int_cnt += q.on_circle   
+            self.points.push_last(q) 
             if processed1 and processed2 == True:
                 self.int_cnt -= r.on_circle
 
-            # добавление двух новых рёбер
             self._perimeter += t.dist(self.points.first()) + \
                 t.dist(self.points.last())
-            # check intersections on circle for t
             self.points.push_first(t)  
         return self
     
 
     def find_intersections(self):
-        # if self.to_front == True:
-        #     a = self.points.pop_first()
-        #     b = self.points.first()
-        #     self.points.push_first(a)
-        #     c = self.points.last()
-        #     self.int_cnt += Segment(a, c)._find_intersections() + \
-        #     Segment(b, c)._find_intersections() + int(c.on_circle)
-        # else:
-        #     a = self.points.first()
-        #     c = self.points.last()
-        #     b = self.points.pop_last()
-        #     self.points.push_first(b)
-        #     self.int_cnt += Segment(a, c)._find_intersections() + \
-        #     Segment(b, c)._find_intersections() + int(c.on_circle)
         a = self.points.pop_first()
         b = self.points.first()
         self.points.push_first(a)
